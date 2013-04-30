@@ -1,0 +1,389 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+  <title>
+   Types in Functional Programming
+  </title>
+ </head>
+ <body style="width: 65%">
+  <div id="magazine" class="magazine">  
+   <div id="first" class="slide">
+    <h1>Types and Type Classes in Functional Programming</h1>
+    <h2>(Actually, what are functors, monoids, and monads?)</h2>
+    <p>
+     I am teaching myself functional programming, mostly in Haskell and Scala
+     with a little Clojure thrown in.  One of the things I have found most
+     confusing is a set of common <span class="emphasize">type classes.</span>
+    </p>
+   </div>
+
+   <div class="slide">
+    <h3>Overview</h3>
+    <p>
+     I've read a number of descriptions and analogies to explain what
+     these things are.  I think if you get formally into type theory
+     there is an exact answer.
+    </p>
+    <p>
+     I have seen some attempts to compare them to interfaces in
+     Java. However, I believe these type definitions operate at a
+     higher level of abstraction than Java interfaces.
+    </p>
+    <p>
+     I think a better analogy is to design patterns, in the original
+     sense of a vocabulary for describing an approach to solving a
+     class of problem rather than necessarily a best practice 
+     or a specific implementation of a solution.
+    </p>
+   </div>
+
+   <div class="slide">
+    <h3>Summary</h3> 
+    These type classes are each defined by a set of functions and a set of rules.
+    <table border="1" width="100%">
+     <tr>
+      <th>
+       type class
+      </th>
+      <th width="40%">
+       functions
+      </th>
+      <th>
+       rules
+      </th>
+     </tr>
+     <tr>
+      <td>
+       functor
+      </td>
+      <td>
+       fmap
+      </td>
+      <td>
+       fmap id  ==  id<br>
+       fmap (f . g)  ==  fmap f . fmap g
+      </td>
+     </tr>
+     <tr>
+      <td>
+       applicative functor
+      </td>
+      <td>
+       pure<br>
+       &lt;*&gt; (sequence and combine computations)
+      </td>
+      <td>
+       &nbsp;
+      </td>
+     </tr>
+     <tr>
+      <td>
+       monoid
+      </td>
+      <td>
+       empty<br>
+       append<br>
+       concat<hr>
+       (Note: "Append" is misnamed.  It is an associative
+       binary operation that combines two monoids in some way. 
+       In some cases it behaves as "append." "Empty" is an identity
+       value that when combined with another value of the same
+       monoidal type yields that value.  "Concat" is a function
+       that chains calls to "append.")
+      </td>
+      <td style="vertical-align: top">
+       identity: (append empty x = x)<br>and (append x empty = x) <br>
+       associativity: appending y to x and then appending z to that
+       is the same as appending z to y and then appending that to x.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       monad
+      </td>
+      <td>
+       return<br>
+       bind<br>
+       join<hr>
+       (Note: monads can be defined in terms of return and bind, or in terms
+       of return, join, and fmap.)
+      </td>
+      <td style="vertical-align: top">
+       left identity: return a >>= f is the same as f a<br>
+       right identity: m >>= return is the same as m<br>
+       bind is associative
+      </td>
+     </tr>
+    </table>
+   </div>
+
+   <div class="slide">
+    <h3>Functor</h3>
+     <ol>
+      <li>str2float n = read n :: Float
+      <li>str2float "1" returns 1.0
+      <li><span class="highlight">fmap str2float ["1", "2", "3"] returns [1.0, 2.0, 3.0]</span>
+     </ol>
+   </div>
+
+   <div class="slide">
+    <h3>Applicative Functor</h3>
+    Given a function, foo, that converts "1" to 1, 2 to "2" and anything
+    else to "bigger"<br>
+    <span class="highlight">[foo] &lt;*&gt; [1, 2, 3] returns ["1","2","bigger"]</span>
+   </div>
+
+   <div class="slide">
+    <h3>Monoid</h3>
+    <div class="inner">
+     Join containers.<br>
+     &gt; x<br>
+     [1,2,3]<br>
+     &gt; y<br>
+     [4,5,6]<br>
+     &gt; z<br>
+     [7,8,9]<br>
+     <span class="highlight">&gt; mconcat [x, y, z]<br>
+     [1,2,3,4,5,6,7,8,9]<br></span>
+    </div>
+   </div>
+
+   <div class="slide">
+    <h3>Side trip - function composition</h3>
+    <div class="inner">
+     <span class="emphasize">Regular function composition assumes parameter and return
+     types are the same:</span><br>
+     &gt; let add1 n = n + 1<br>
+     &gt; let add2 n = n + 2<br>
+     &gt; let add3 = add2 . add1<br>
+     &gt; add3 2<br>
+     5<br><br>
+     <span class="emphasize">If they are not the same, trouble ensues:</span><br>
+     &gt; let add1 n = Just (n + 1)<br>
+     &gt; let add2 n = Just (n + 2)<br>
+     &gt; add1 2<br>
+     Just 3<br>
+     &gt; add2 3<br>
+     Just 5<br>
+     &gt; let add3 = add1 . add2<br>
+     <br>
+     &lt;interactive&gt;:82:12:<br>
+         No instance for (Num (Maybe a0))<br>
+           arising from a use of `add1'<br><br>
+    </div>
+   </div>
+
+   <div class="slide">
+    <h3>Monads</h3>
+    <div class="inner">
+     <span class="emphasize">Monads allow you to compose functions with 
+     differing parameter and return types:</span><br>
+     &gt; let add1 n = Just (n + 1)<br>
+     &gt; let add2 n = Just (n + 2)<br>
+     <div class="highlight">
+      &gt; return 1 >>= add1 >>= add2<br>
+      Just 4<br><br>  
+     </div>
+     <span class="emphasize">OR</span><br><br>
+     <div class="highlight">
+      &gt; let add3 = add1 >=> add2<br>
+      &gt; add3 1<br>
+      Just 4<br>
+     </div>
+    </div>
+   </div>
+
+   <div class="slide">
+    <h2>Characteristics</h2>
+    <h3>Functor</h3>
+    <div class="box">Functor defines<br>fmap.</div>
+    <ol>
+     <li>       
+      Given a function that converts Strings that represent integers
+      to floating point values: <br>
+      str2float n = read n :: Float
+      <br>
+      so: str2float "1" returns: 1.0
+     </li>
+     <li>
+      And a list of Strings that represent integers: <br>
+      ["1", "2", "3"]
+     </li>
+     <li>
+      <div class="highlight">
+       Then applying fmap to str2float and that list produces a list of Floats: <br>
+       [1.0, 2.0, 3.0] 
+      </div>
+     </li>
+    </ol>
+   </div>
+
+   <div class="slide">
+    <h3>Applicative Functor</h3>
+    <div class="box">
+     Applicative Functor defines<br><i>pure</i><br>and <i>"&lt;*&gt;"</i><br>
+    </div>
+     Given a functor containing functions, you can apply those functions to the 
+     contents of another functor:
+    <ol>
+     <li>       
+      Given a function:<br>
+      &gt; let str2float n = read n :: Float
+     </li>
+     <li>       
+      and another function:<br>
+      &gt; let str2plusOne n = (read n) + 1 :: Float
+     </li>
+     <li>
+      And a list of Strings that represent integers: <br>
+      ["1", "2", "3"]
+     </li>
+     <li>
+      <div class="highlight">
+       &gt; f &lt;*&gt; ["1", "2"]<br>
+       [1.0,2.0,2.0,3.0]
+      </div>
+     </li>
+    </ol>
+   </div>
+  
+   <div class="slide">
+    <h3>Monoids</h3>
+    <div class="box">
+     Monoid defines<br>
+     mempty <br>
+     mappend<br>
+     mconcat<br>
+    </div>
+    Mempty is the identity function.  Mappend is a binary function (sometimes append, but 
+    not necesssarily), and Mconcat joins monoids.<br>
+
+    So we can join containers.<br>
+    <ul>
+     <li>
+      &gt; x<br>
+      [1,2,3]<br>
+     </li>
+     <li>
+      &gt; y<br>
+      [4,5,6]<br>
+     </li>
+     <li>
+      &gt; z<br>
+      [7,8,9]<br>
+     </li>
+     <li>
+      <div class="highlight">
+       &gt; mappend x y<br>
+       [1,2,3,4,5,6]
+      </div>
+     </li>
+     <li>
+      <div class="highlight">
+       &gt; mconcat [x, y, z]<br>
+       [1,2,3,4,5,6,7,8,9]<br>
+      </div>
+     </li>
+    </ul>
+   </div>
+  
+   <div class="slide">
+    <h3>Monads</h3>
+    <div class="box">
+     Monad defines<br>
+     return <br>
+     bind &gt;&gt;=<br>
+     join <br>
+     fail &gt;&gt;=<br>
+     sequence &gt;&gt;<br>
+      <br>
+    </div>
+    <div class="inner">
+     <br>
+     Monads allow you to compose functions with differing parameter and return
+     types: <br>
+     <h2>(example using "Maybe")</h2>
+     a n = n + 1<br>
+     b n = n + 2<br>
+     c = b . a<br>
+     e n = Just (a n)<br>
+     f n = Just (b n)<br>
+     <div class="highlight">
+      g = f >=> e<br>
+      &gt; g 3<br>
+      Just 6<br>
+     </div>
+    </div>
+   </div>
+
+   <div class="slide">
+    <h3>Monads continued</h3>
+    <h2>(example using Lists)</h2>
+    <div class="inner">
+     f :: Integer -> Integer<br>
+     f x = x + 1<br>
+     <br>
+     g :: Integer -> Integer<br>
+     g x = x * 2<br>
+     <br>
+     x y = g (f y)<br>
+     y = g . f<br><br>
+     <hr>
+     f' :: Integer -> [Integer]<br>
+     f' x = [x + 1]<br>
+     <br>
+     g' :: Integer -> [Integer]<br>
+     g' x = [x * 2]<br>
+     <br>
+     x' y = return y >>= f' >>= g' <br>
+     y' = f' >=> g'<br>
+    </div>
+   </div>
+  
+   <div class="slide">
+    <h3>Monads continued</h3>
+    <div class="inner">
+     One of the most useful features of monads is that they allow you,
+     by purely functional means, to cause evaluation to proceed in
+     a specified order.  Normally in a non-strict language the program
+     does not specify the order in which expressions are evaluated. 
+     Any code that has to produce side-effects (e.g. input and output)
+     typically depends pretty heavily on order of execution.  The sequence
+     operator is the same as the bind operator, &gt;&gt;=, except the function
+     on the right hand side ignores its parameter.  So if you want "a" to 
+     happen and then "b" you write:<br>
+     a &gt;&gt; b
+    </div> 
+    <div>
+     To make this easier to use many languages introduce syntactic sugar. In 
+     Haskell this is "do" notation and in Scala it is "for" expressions.  
+     <br>
+     For example:
+     <pre>
+      <code>
+       do
+         print "testing"
+         print "one"
+         print "two"
+      </code>
+     </pre>
+    </div>
+   </div>
+
+   <div class="slide">
+    <h3>Monads continued</h3>
+    <div class="inner">
+     Monads have other useful attributes that I won't go into in depth here.
+     One worth mentioning is that monads may be flattened.  That is the purpose
+     of the join function.<br><br>
+     <div class="highlight">
+      &gt; join [[1, 2, 3], [4, 5], [], [6]]<br>
+      [1,2,3,4,5,6]
+     </div>
+    </div> 
+    <br><br><br>
+   </div>
+  </div>
+ </body>
+</html>
