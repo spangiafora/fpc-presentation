@@ -7,9 +7,11 @@
   </title>
   <style type="text/css">
    body { width: 65%; }
+   table.defs { width: 100%; }
+   th.funccol { width: 40%; }
   </style>
   <link rel="stylesheet" type="text/css" href="slides.css"/>
-  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="slide.js"></script>
  </head>
  <body>
@@ -46,20 +48,43 @@
     <p>
      I think a better analogy is to design patterns, in the original
      sense of a vocabulary for describing an approach to solving a
-     class of problem rather than necessarily a best practice 
-     or a specific implementation of a solution.
+     class of problem rather than necessarily a best practice or a
+     specific implementation of a solution.  (Since I wrote this slide
+     I have seen them called patterns in a number of places.)
+    </p>
+   </div>
+
+   <div class="slide">
+    <h3>Motivation</h3>
+    <p>
+     Before getting into technical details we should take a higher
+     level look at some of the problems these type classes address.
+    </p>
+    <h4>Sequencing</h4>
+    <p>
+     In a language with lazy evaluation you cannot count on the order
+     in which things are evaluated and you cannot be sure that something 
+     won't be evaluated more than once.  If you are performing a pure
+     computation this doesn't affect the results.  If you need side effects,
+     such as input or output, it is a problem.
+    </p>
+    <h4>Function composition with strong static typing</h4>
+    <p>
+     If two functions take parameters of one type and return a value
+     of a different type they cannot be combined into a third function
+     with simple function composition.
     </p>
    </div>
 
    <div class="slide">
     <h3>Summary</h3> 
     These type classes are each defined by a set of functions and a set of rules.
-    <table border="1" width="100%">
+    <table border="1" class="defs">
      <tr>
       <th>
        type class
       </th>
-      <th width="40%">
+      <th class="funccol">
        functions
       </th>
       <th>
@@ -308,7 +333,7 @@
      return <br>
      bind &gt;&gt;=<br>
      join <br>
-     fail &gt;&gt;=<br>
+     fail &gt;&gt;= (viewed by some as an ugly hack)<br>  
      sequence &gt;&gt;<br>
       <br>
     </div>
@@ -395,8 +420,78 @@
       [1,2,3,4,5,6]
      </div>
     </div> 
-    <br><br><br>
-   </div>
+   </div> 
+
+   <div class="slide">
+    <h3>Things to discuss?</h3>
+    <div class="inner">
+     <p>
+      In poking around the web I have found a lot of tutorials on
+      monads, and a lot of advice to the effect that monads are not
+      fundamental to Haskell and are not the place to start.  That's
+      true.  However, scratch the surface of any Haskell program and
+      you are likely to find at least functors if not some of the more
+      advanced type classes.  
+     </p>
+     <p>
+      I am curious where these concepts fit in to functional
+      programming. Certain concepts are central to functional
+      programming in any language, from Lisp, to ML, to Scala, to
+      Haskell, and even in the more functional aspects of Ruby and
+      Python.  Key among these are map, filter, reduce, lambda and
+      their friends.
+     </p>
+    </div> 
+   </div> 
+
+   <div class="slide">
+    <h3>Things to discuss? (continued)</h3>
+    <div class="inner">
+     <p>
+      The things described in this presentation seem less ubiquitous.
+      My impression, at least is that the following are true:
+     </p>
+     <ol>
+      <li>
+       When you start learning Haskell you encounter these concepts
+       pretty directly.
+      </li>
+      <li>
+       ML books generally talk about functors, although with a
+       slightly different meaning.  They don't tend to mention monads
+       (but then, the ML books I own are showing their age in other
+       ways, so who knows...)
+      </li>
+      <li>
+       As far as I remember, Odersky didn't mention any of these terms
+       in his "Functional Programming Principles in Scala" Coursera
+       offering.  However, several of the lessons focused specifically 
+       on the underlying principles while avoiding the vocabulary.
+      </li>
+      <li>
+       I don't think I have seen any of these terms used in any Lisp books.
+       My gut feeling is that while they are applicable to just about any
+       programming environment, their value really comes into play in 
+       strongly statically typed languages.
+      </li>
+     </ol>
+    </div> 
+   </div> 
+
+   <div class="slide">
+    <h3>Worthwhile materials</h3>
+    <div class="inner">
+     I found the following particularly useful:
+     <ol>
+      <li><a href="http://learnyouahaskell.com/">Learn You A Haskell For Great Good</a>
+      <li><a href="http://www.haskell.org/wikiupload/8/85/TMR-Issue13.pdf">Brent Yorgey's article in The Monad Reader</a>
+      <li><a href="http://blog.sigfpe.com/2007/04/trivial-monad.html">Dan Piponi's simplest monad doc</a>
+      <li><a href="http://james-iry.blogspot.com/2007/09/monads-are-elephants-part-1.html">Monads are elephants</a>
+      <li><a href="http://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html">Dan Piponi's "You could have invented monads"</a>
+      <li><a href="http://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/">Translation of "you could have invented" to Javascript</a>
+     </ol>
+    </div> 
+   </div> 
   </div>
  </body>
 </html>
