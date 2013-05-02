@@ -1,0 +1,194 @@
+<html>
+ <head>
+  <title>
+   possible topics for discussion
+  </title>
+  <style type="text/css">
+   body    { width: 70%; }
+   .title  { font-weight: bold; background-color: yellow; }
+  </style>
+ </head>
+ <body>
+  <h1>Possible topics for discussion</h1>
+  <table border="0">
+   <tr>
+    <td>
+     <span class="title">Book reviews</span> - see potential title list
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Various Resources</span><br>
+     What web sites and other (non-book) resources are worth discussing?
+     Parenthetically Speaking (although it is showing its age), 
+     <a href="http://blog.sigfpe.com/">A neighborhood of infinity</a>, 
+     and Lambda The Ultimate come to mind. Others?
+     <br>
+     If nothing else, would it be worth developing a wiki of links to
+     things like this? Would constructing a wiki as a group be a way
+     of keeping the group going?  Chas apologized (unnecessarily) for
+     starting off the group with a discussion of the value of
+     immutability.  He felt he had underestimated the maturity of the
+     group with respect to Functional programming.  However, we never really
+     did find out what level most of the group is at or what things 
+     they'd like to know more about or share more about.  I asked about monads
+     at the first meeting most of the useful responses came <i>after</i> the
+     meetup.
+     <br>
+     I am also somewhat curious how people came to functional programming
+     and what languages they have worked in and why.
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Type classes and higher order types</span> - Functors, Applicatives, Monoids, Monads
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Programming styles</span> - Applicative style, CPS et al
+    <td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Rosetta Code</span> - pick a set of algorithms and implement them in 
+     <ul>
+      <li>Clojure
+      <li>Some other Lisp or Scheme
+      <li>Haskell
+      <li>Scala
+      <li>Ruby
+      <li>Java
+      <li>C
+     </ul>
+     to show the differences (e.g. do different approaches work
+     better in different languages?), to contrast the
+     languages' strengths and weaknesses, and to share programming techniques.
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Rosetta Code part 2</span>
+     <br>
+     Similar to first talk, but stressing things that cannot be done in 
+     other languages.  The only thing that immediately comes to mind
+     is Macros in the various Lisps and Reader Macros in Common Lisp,
+     but I am sure there are others.
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Memoization</span> as solution, for example,
+     to complexity of pegpuzzle problem.  How far does it get you?  We
+     talked about using a mutable hashmap behind the scenes while
+     maintaining referential transparency externally.
+     Is there a purely functional alternative that is not too clumsy?
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Explicit advantages</span> of functional programming languages.  Are
+     there advantages of imperative languages?  Where do they diverge?
+     Where do they overlap?
+     <br><br>
+     I also think it would be interesting to discuss the characteristics of Imperative,
+     Object Oriented, and Functional languages.  For one thing, I think the terms Object Oriented
+     and Functional are orthoganol.  For another, I believe many things are erroneously 
+     claimed as characteristics of one group or another. <br>See: 
+     <a href="http://www.nhplace.com/kent/PS/Name.html">Kent Pitman's Parenthetically Speaking column, 
+     "What's in a name?"</a>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Frameworks</span>
+     The Java world has exploded into a collection of frameworks.  Most serious
+     organizations make use of something like Spring or Guice.  Many use 
+     maven.  To what extent are these good practices and to what extent
+     are they not necessary in the functional world?
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Design Patterns.</span> Norvig and Graham
+     have written that they consider them a bad sign.  A lot of OO
+     programmers have misunderstood them and turned them from a
+     language into a list of "best practices," if not an out and out
+     religion.  Interestingly, many of the people who came up with
+     them (e.g. Richard Gabriel) are situated pretty firmly in the
+     Lisp community.  To what extent are these patterns appropriate to
+     functional design? To what extend does functional programming
+     define its own patterns?  (I would argue that monad and company
+     are a good example of functional design patterns.)
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">AOP et al</span><br>
+     Do trends like AOP have a place in the functional world?  (Again,
+     this came out of the Lisp community, with Gregor Kiczales and a lot
+     of the Parc guys driving it.)
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Java Lambda</span><br>
+     The yet-again delayed project Lambda.  How does it work? When
+     will it be available? Is it necessarily a good thing? (And what
+     about Guy Steel's statement, "We were not out to win over the
+     Lisp programmers; we were after the C++ programmers. We managed
+     to drag a lot of them about halfway to Lisp. Aren't you happy?"
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Concurrency</span>
+     <ul>
+      <li>
+       STM
+      </li>
+      <li>
+       Agents
+      </li>
+      <li>
+       Actor based concurrency  
+        <ul>
+         <li>
+          in functional languages
+         </li>
+         <li>
+          in Java (akka?)
+         </li>
+      </li>
+     </ul>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">Integration with other languages</span><br>
+     Integration of imperative and functional languages.
+     <br>
+     Maybe another Rosetta Code thing showing something like:
+     <ul>
+      <li>Integration of Clojure and Java
+      <li>Integration of Clojure and other JVM languages
+      <li>Integration of Scala and other JVM languages
+      <li>Integration of Haskell and C
+      <li>Integration of F# and C#
+     </ul>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <span class="title">OOP</span><br>
+     Functional approaches to Object Oriented programming
+     <ul>
+      <li>How functional is Smalltalk?
+      <li>Multimethods and MOPs in Common Lisp
+      <li>Multimethods in Clojure
+     </ul>
+    </td>
+   </tr>
+  </table>
+ </body>
+</html>
