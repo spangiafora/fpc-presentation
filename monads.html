@@ -67,6 +67,12 @@
      won't be evaluated more than once.  If you are performing a pure
      computation this doesn't affect the results.  If you need side effects,
      such as input or output, it is a problem.
+    </p>
+    <p>
+     Sequencing can be done with a number of these type classes.  Monads
+     also make it easier to pipeline functions to create more complex
+     complications.
+    </p>
    </div>
 
    <div class="slide">
@@ -109,6 +115,10 @@
    <div class="slide">
     <h3>Summary</h3> 
     These type classes are each defined by a set of functions and a set of rules.
+    <br><br>
+    Note: One of the reasons I think of these as related to design patterns is that
+    there is nothing <span class="emphasize">in the language</span> that enforces 
+    these rules.  
     <table border="1" class="defs">
      <tr>
       <th>
