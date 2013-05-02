@@ -67,12 +67,42 @@
      won't be evaluated more than once.  If you are performing a pure
      computation this doesn't affect the results.  If you need side effects,
      such as input or output, it is a problem.
-    </p>
+   </div>
+
+   <div class="slide">
+    <h3>Motivation</h3>
     <h4>Function composition with strong static typing</h4>
+     Given a function that returns a type that is the type of a
+     parameter to another, function the two functions can be combined
+     to produce a third.
+     <pre>
+      <code>&nbsp;user> (defn add1 [n] (+ 1 n))
+       #'user/add1
+       user> (defn add2 [n] (+ 2 n))
+       #'user/add2
+       user> (let [add3 (comp add1 add2)] (add3 4))
+       7
+       user></code>
+     </pre>
+     If you try to combine two functions and the leftmost function
+     (the one calling the result of the other) doesn't accept the type
+     of the rightmost function's return value they cannot be combined.
+     Clojure will allow the composition, but you will get a runtime
+     error.  Haskell will disallow the composition.
+   </div>
+
+   <div class="slide">
+    <h3>Type Classes</h3>
     <p>
-     If two functions take parameters of one type and return a value
-     of a different type they cannot be combined into a third function
-     with simple function composition.
+     Haskell is a simple uncluttered language to describe these things
+     in.  It supports the notion of "type classes" and "type
+     constructors" which essentially define parameterized types.  So
+     List is a type constructor which is an instance of a number of
+     type classes, including the ones we will be discussing.  So in a
+     sense <br><br>the type [String] which signifies "list of String" in
+     Haskell corresponds to the type List&lt;String&gt; in Java.<br><br> However,
+     List in Haskell is also an instance of functor, and there is no
+     very close analogy to that in Java.
     </p>
    </div>
 
@@ -420,6 +450,91 @@
       [1,2,3,4,5,6]
      </div>
     </div> 
+   </div> 
+
+   <div class="slide">
+    <h3>Things to discuss?</h3>
+    <h4>Does Rob really get monadic function composition</h4>
+    I very nearly included some bad misinformation in this presentation.
+    When, with Chas's help, I caught it, it took me about 20 minutes to
+    straighten things out.  Given that, I am not now 100% sure I really
+    understand the mechanism or motivation.  Here's what I found:
+    <br><br>
+    This is ok:
+    <pre>
+     <code>
+      module Main (main)
+      where 
+
+      import Control.Monad
+
+      main = do
+	print (x ["20"])
+	print (y ["20"])
+
+      f :: Integer -> String
+      f x = show(x + 1)
+
+      // You can modify f to take a list of Integer 
+      // and use that for regular function composition
+      f' :: [Integer] -> String
+      f' [x] = show(x + 1)
+
+      g :: [String] -> [Integer]
+      g [x] = [(read x) * 2]
+
+      // Or you can use bind to extract the value from 
+      // the list and join g and f that way
+      // <span style="color: purple;">This is the part I am not sure I get.
+      // Does it matter that f does not return a monad?</span>
+       <span style="font-size: larger; color: blue;">x = g >=> f
+      y = f' . g</span>
+      $ ghc altcomp
+      [1 of 1] Compiling Main             ( altcomp.hs, altcomp.o )
+      Linking altcomp ...
+      $ ./altcomp 
+      "41"
+      "41"
+      $
+     </code>
+    </pre>
+    This is not:
+    <pre>
+     <code>
+      module Main (main)
+      where 
+
+      import Control.Monad
+
+      main = do
+	print (x ["20"])
+	print (y ["20"])
+
+      f :: Integer -> String
+      f x = show(x + 1)
+
+      f' :: [Integer] -> String
+      f' [x] = show(x + 1)
+
+      g :: [String] -> [Integer]
+      g [x] = [(read x) * 2]
+
+       <span style="font-size: larger; color: blue;">x = g >=> f
+      y = f . g</span>
+
+      $ !g
+      ghc altcomp
+      [1 of 1] Compiling Main ( altcomp.hs, altcomp.o )
+
+      altcomp.hs:21:9:
+	  Couldn't match expected type `Integer' with actual type `[Integer]'
+	  Expected type: [String] -> Integer
+	    Actual type: [String] -> [Integer]
+	  In the second argument of `(.)', namely `g'
+	  In the expression: f . g
+      $ 
+     </code>
+    </pre>
    </div> 
 
    <div class="slide">
