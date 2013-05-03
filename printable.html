@@ -5,9 +5,21 @@
   <title>
    Types in Functional Programming
   </title>
+  <style type="text/css">
+   body { width: 65%; }
+   table.defs { width: 100%; }
+   th.funccol { width: 40%; }
+  </style>
  </head>
- <body style="width: 65%">
+ <body>
   <div id="magazine" class="magazine">  
+   <button id="prev" class="prev">
+    Previous
+   </button>
+   <button id="next" class="next">
+    Next
+   </button>
+
    <div id="first" class="slide">
     <h1>Types and Type Classes in Functional Programming</h1>
     <h2>(Actually, what are functors, monoids, and monads?)</h2>
@@ -15,6 +27,11 @@
      I am teaching myself functional programming, mostly in Haskell and Scala
      with a little Clojure thrown in.  One of the things I have found most
      confusing is a set of common <span class="emphasize">type classes.</span>
+    </p>
+    <p class="aside">
+     I am very new to this stuff. Please bear with me if I make any errors.
+     When reviewing these slides I discovered mistakes that I know I would 
+     not have made if I were actively programming in these languages.
     </p>
    </div>
 
@@ -33,20 +50,86 @@
     <p>
      I think a better analogy is to design patterns, in the original
      sense of a vocabulary for describing an approach to solving a
-     class of problem rather than necessarily a best practice 
-     or a specific implementation of a solution.
+     class of problem rather than necessarily a best practice or a
+     specific implementation of a solution.  (Since I wrote this slide
+     I have seen them called patterns in a number of places.)
+    </p>
+   </div>
+
+   <div class="slide">
+    <h3>Motivation</h3>
+    <p>
+     Before getting into technical details we should take a higher
+     level look at some of the problems these type classes address.
+    </p>
+    <h4>Sequencing</h4>
+    <p>
+     In a language with lazy evaluation you cannot count on the order
+     in which things are evaluated and you cannot be sure that
+     something will be evaluated only once.  If you are performing a
+     pure computation this doesn't affect the results.  If you need
+     side effects, such as input or output, it is a problem.
+    </p>
+    <p>
+     Sequencing can be done with a number of these type classes.
+     Monads also make it easier to pipeline functions, feeding the
+     output of one to the input of another, to create more complex
+     complications.
+    </p>
+   </div>
+
+   <div class="slide">
+    <h3>Motivation</h3>
+    <h4>Function composition with strong static typing</h4>
+     Given a function that returns a type that is the type of a
+     parameter to another, function the two functions can be combined
+     to produce a third.
+     <pre>
+      <code>&nbsp;user> (defn add1 [n] (+ 1 n))
+       #'user/add1
+       user> (defn add2 [n] (+ 2 n))
+       #'user/add2
+       user> (let [add3 (comp add1 add2)] (add3 4))
+       7
+       user></code>
+     </pre>
+     If you try to combine two functions and the leftmost function
+     (the one calling the result of the other) doesn't accept the type
+     of the rightmost function's return value they cannot be combined.
+     Clojure will allow the composition, but you will get a runtime
+     error.  Haskell will disallow the composition.
+   </div>
+
+   <div class="slide">
+    <h3>Type Classes</h3>
+    <p>
+     Haskell is a simple uncluttered language to describe these things
+     in.  It supports the notion of "type classes" and "type
+     constructors" which essentially define parameterized types.  So
+     List is a type constructor which is an instance of a number of
+     type classes, including the ones we will be discussing.  So in a
+     sense <br><br>the type [String] which signifies "list of String"
+     in Haskell corresponds to the type List&lt;String&gt; in
+     Java.<br><br> However, List in Haskell is also an instance of
+     functor, and there is no very close analogy to that in Java.
+     (Also, for historical reasons, List is a type in its own right in
+     Java. In Haskell it is not.)
     </p>
    </div>
 
    <div class="slide">
     <h3>Summary</h3> 
     These type classes are each defined by a set of functions and a set of rules.
-    <table border="1" width="100%">
+    <br><br>
+    Note: One of the reasons I think of these as related to design patterns is that
+    there is nothing <span class="emphasize">in the language</span> that enforces 
+    these rules.  
+    <table border="1" class="defs">
      <tr>
       <th>
        type class
       </th>
-      <th width="40%">
+      <th class="funccol">
        functions
       </th>
       <th>
@@ -107,7 +190,7 @@
        bind<br>
        join<hr>
        (Note: monads can be defined in terms of return and bind, or in terms
-       of return, join, and fmap.)
+       of return, join or flatten, and fmap.)
       </td>
       <td style="vertical-align: top">
        left identity: return a >>= f is the same as f a<br>
@@ -295,7 +378,7 @@
      return <br>
      bind &gt;&gt;=<br>
      join <br>
-     fail &gt;&gt;=<br>
+     fail &nbsp;&nbsp; (viewed by some as necessary, by others as an ugly hack)<br>  
      sequence &gt;&gt;<br>
       <br>
     </div>
@@ -351,23 +434,42 @@
      Any code that has to produce side-effects (e.g. input and output)
      typically depends pretty heavily on order of execution.  The sequence
      operator is the same as the bind operator, &gt;&gt;=, except the function
-     on the right hand side ignores its parameter.  So if you want "a" to 
+     on the right hand side ignores its parameter.  <br><br>So if you want "a" to 
      happen and then "b" you write:<br>
      a &gt;&gt; b
     </div> 
+   </div>
+
+   <div class="slide">
+    <h3>Monad syntactic sugar</h3>
     <div>
      To make this easier to use many languages introduce syntactic sugar. In 
      Haskell this is "do" notation and in Scala it is "for" expressions.  
      <br>
-     For example:
+     For example, the highlighted part of this code in scala:
      <pre>
       <code>
-       do
-         print "testing"
-         print "one"
-         print "two"
+       <div class="highlight">
+       def z(x: Int) : Option[Int] =
+	 for {
+	   a <- f(x)
+	   b <- g(a)
+	 } yield b + 1
+       </div>
+
+       def f(x: Int) : Option[Int] = {
+         if (x <= 3) Some(x + 1)
+         else None
+       }
+
+       def g(x: Int) : Option[Int] = {
+         Some(x * 2)
+       }
       </code>
      </pre>
+     is converted by the compiler into this:<br>
+     def z(x: Int): Option[Int] = f(x).flatMap(((a) => g(a).map(((b) => b.$plus(1)))));
+
     </div>
    </div>
 
@@ -382,8 +484,168 @@
       [1,2,3,4,5,6]
      </div>
     </div> 
-    <br><br><br>
+   </div> 
+
+   <div class="slide">
+    <h3>Things to discuss?</h3>
+    <h4>Does Rob really get monadic function composition</h4>
+    I very nearly included some bad misinformation in this presentation.
+    When, with Chas's help, I caught it, it took me about 20 minutes to
+    straighten things out.  Given that, I am not now 100% sure I really
+    understand the mechanism or motivation.  Here's what I found:
+    <br><br>
+    This is ok:
+    <pre>
+     <code>
+      module Main (main)
+      where 
+
+      import Control.Monad
+
+      main = do
+        print (x ["20"])
+        print (y ["20"])
+
+      f :: Integer -> String
+      f x = show(x + 1)
+
+      // You can modify f to take a list of Integer 
+      // and use that for regular function composition
+      f' :: [Integer] -> String
+      f' [x] = show(x + 1)
+
+      g :: [String] -> [Integer]
+      g [x] = [(read x) * 2]
+
+      // Or you can use bind to extract the value from 
+      // the list and join g and f that way
+      // <span style="color: purple;">This is the part I am not sure I get.
+      // Does it matter that f does not return a monad?</span>
+       <span style="font-size: larger; color: blue;">x = g >=> f
+      y = f' . g</span>
+      $ ghc altcomp
+      [1 of 1] Compiling Main             ( altcomp.hs, altcomp.o )
+      Linking altcomp ...
+      $ ./altcomp 
+      "41"
+      "41"
+      $
+     </code>
+    </pre>
+    This is not:
+    <pre>
+     <code>
+      module Main (main)
+      where 
+
+      import Control.Monad
+
+      main = do
+        print (x ["20"])
+        print (y ["20"])
+
+      f :: Integer -> String
+      f x = show(x + 1)
+
+      f' :: [Integer] -> String
+      f' [x] = show(x + 1)
+
+      g :: [String] -> [Integer]
+      g [x] = [(read x) * 2]
+
+       <span style="font-size: larger; color: blue;">x = g >=> f
+      y = f . g</span>
+
+      $ !g
+      ghc altcomp
+      [1 of 1] Compiling Main ( altcomp.hs, altcomp.o )
+
+      altcomp.hs:21:9:
+          Couldn't match expected type `Integer' with actual type `[Integer]'
+          Expected type: [String] -> Integer
+            Actual type: [String] -> [Integer]
+          In the second argument of `(.)', namely `g'
+          In the expression: f . g
+      $ 
+     </code>
+    </pre>
+   </div> 
+
+   <div class="slide">
+    <h3>Things to discuss?</h3>
+    <div class="inner">
+     <p>
+      In poking around the web I have found a lot of tutorials on
+      monads, and a lot of advice to the effect that monads are not
+      fundamental to Haskell and are not the place to start.  That's
+      true.  However, scratch the surface of any Haskell program and
+      you are likely to find at least functors if not some of the more
+      advanced type classes.  
+     </p>
+     <p>
+      I am curious where these concepts fit in to functional
+      programming. Certain concepts are central to functional
+      programming in any language, from Lisp, to ML, to Scala, to
+      Haskell, and even in the more functional aspects of Ruby and
+      Python.  Key among these are map, filter, reduce, lambda and
+      their friends.
+     </p>
+    </div> 
+   </div> 
+
+   <div class="slide">
+    <h3>Things to discuss? (continued)</h3>
+    <div class="inner">
+     <p>
+      The things described in this presentation seem less ubiquitous.
+      My impression, at least is that the following are true:
+     </p>
+     <ol>
+      <li>
+       When you start learning Haskell you encounter these concepts
+       pretty directly.
+      </li>
+      <li>
+       ML books generally talk about functors, although with a
+       slightly different meaning.  They don't tend to mention monads
+       (but then, the ML books I own are showing their age in other
+       ways, so who knows...)
+      </li>
+      <li>
+       As far as I remember, Odersky didn't mention any of these terms
+       in his "Functional Programming Principles in Scala" Coursera
+       offering.  However, several of the lessons focused specifically 
+       on the underlying principles while avoiding the vocabulary.
+      </li>
+      <li>
+       I don't think I have seen any of these terms used in any Lisp books.
+       My gut feeling is that while they are applicable to just about any
+       programming environment, their value really comes into play in 
+       strongly statically typed languages.
+      </li>
+     </ol>
+    </div> 
+   </div> 
+
+   <div class="slide">
+    <h3>Worthwhile materials</h3>
+    <div class="inner">
+     I found the following particularly useful:
+     <ol>
+      <li><a href="http://learnyouahaskell.com/">Learn You A Haskell For Great Good</a>
+      <li><a href="http://www.haskell.org/wikiupload/8/85/TMR-Issue13.pdf">Brent Yorgey's article in The Monad Reader</a>
+      <li><a href="http://blog.sigfpe.com/2007/04/trivial-monad.html">Dan Piponi's simplest monad doc</a>
+      <li><a href="http://james-iry.blogspot.com/2007/09/monads-are-elephants-part-1.html">Monads are elephants</a>
+      <li><a href="http://blog.sigfpe.com/2006/08/you-could-have-invented-monads-and.html">Dan Piponi's "You could have invented monads"</a>
+      <li><a href="http://blog.jcoglan.com/2011/03/05/translation-from-haskell-to-javascript-of-selected-portions-of-the-best-introduction-to-monads-ive-ever-read/">Translation of "you could have invented" to Javascript</a>
+     </ol>
+    </div> 
+   </div> 
+   <div class="slide">
+    <h3>Equivalence of monad definitions</h3>
+    <a href="equiv.html">Equivalence of monad definitions</a>
    </div>
+
   </div>
  </body>
 </html>
