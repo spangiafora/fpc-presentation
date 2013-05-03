@@ -1,0 +1,94 @@
+<html>
+ <head>
+  <title>
+   equivalence of monad definitions
+  </title>
+  <style type="text/css">
+   table { width: 100%; }
+   td { width: 50%; }
+   td.title { width: 50%; font-weight: bold; text-align: center; }
+   th { font-weight: bold; text-align: center; }
+  </style>
+ </head>
+ <body>
+  <table border="1">
+   <tr>
+    <th colspan="2">
+     Equivalence of return/bind and fmap/join
+    </th>
+   </tr>
+   <tr>
+    <td class="title">
+     Using Maybe
+    </td>
+    <td class="title">
+     Using List
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <pre>
+      <code>
+module Main (main)
+where 
+
+import Control.Monad
+-- Simple example showing the equivalence of 
+-- return val >>= func
+-- and
+-- join (fmap func (Maybe val))
+
+main = do
+  print(return 2 &gt;&gt;= f)
+  print(join ((fmap f) (Just 2)))
+  print((fmap f) (Just 2))
+--  print(fmap f [2])
+
+f i = Just (i + 10)
+
+ -- return 2 &gt;&gt;= f           -- convert 2 to Just 2 
+ -- (Just 2) &gt;&gt;= f           -- and pipe it to f
+ -- f(2)                    -- &gt;&gt;= takes 2 from Just 2 and passes it to f
+ -- Just 1                  -- f returns Just 12
+ -- -------------
+ -- join((fmap f) (Just 2)) -- fmap f over Just 2 returning Just(Just 12)
+ -- join (Just (Just 12))   -- call join on Just(Just 12))
+ -- Just 12                 -- producing Just 12
+      </code>
+     </pre>
+    </td>
+    <td>
+     <pre>
+      <code>
+module Main (main)
+where 
+
+import Control.Monad
+-- Simple example showing the equivalence of 
+-- return val >>= func
+-- and
+-- join (fmap func [val])
+
+main = do
+  print(return 2 >>= f)
+  print(join ((fmap f) [2]))
+  print((fmap f) [2])
+  print(fmap f [2])
+
+f i = [i + 1, i + 2]
+
+ -- return 2 >>= f       -- convert 2 to [2 ]
+ -- [2] >>= f            -- and pipe it to f
+ -- f(2)                 -- >>= takes 2 from [2] and passes it to f
+ -- [3, 4]               -- f returns [3, 4]
+ -- -------------
+ -- join((fmap f) [2])   -- fmap f over [2] returning [[3, 4]]
+ -- join ([[3, 4]]       -- call join on [[3, 4]]
+ -- [3, 4]               -- producing [3, 4]
+      </code>
+     </pre>
+    </td>
+   </tr>
+  </table>
+ </body>
+</html>
