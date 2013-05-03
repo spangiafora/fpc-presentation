@@ -74,7 +74,9 @@
      Sequencing can be done with a number of these type classes.
      Monads also make it easier to pipeline functions, feeding the
      output of one to the input of another, to create more complex
-     complications.
+     computations, possibly handling unforeseen events that occur in
+     midstream.  In addition there are methods to lift things into
+     their monadic equivalents.
     </p>
    </div>
 
@@ -119,11 +121,12 @@
 
    <div class="slide">
     <h3>Summary</h3> 
-    These type classes are each defined by a set of functions and a set of rules.
+    These type classes are each defined by a set of functions and a set of 
+    rules.
     <br><br>
-    Note: One of the reasons I think of these as related to design patterns is that
-    there is nothing <span class="emphasize">in the language</span> that enforces 
-    these rules.  
+    Note: One of the reasons I think of these as related to design patterns 
+    is that there is nothing <span class="emphasize">in the language</span> 
+    that enforces these rules.  
     <table border="1" class="defs">
      <tr>
       <th>
