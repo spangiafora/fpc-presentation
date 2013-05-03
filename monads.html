@@ -11,7 +11,9 @@
    th.funccol { width: 40%; }
   </style>
   <link rel="stylesheet" type="text/css" href="slides.css"/>
-  <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" 
+          src="http://code.jquery.com/jquery-1.9.1.min.js">
+  </script>
   <script type="text/javascript" src="slide.js"></script>
  </head>
  <body>
@@ -30,6 +32,11 @@
      I am teaching myself functional programming, mostly in Haskell and Scala
      with a little Clojure thrown in.  One of the things I have found most
      confusing is a set of common <span class="emphasize">type classes.</span>
+    </p>
+    <p class="aside">
+     I am very new to this stuff. Please bear with me if I make any errors.
+     When reviewing these slides I discovered mistakes that I know I would 
+     not have made if I were actively programming in these languages.
     </p>
    </div>
 
@@ -63,15 +70,18 @@
     <h4>Sequencing</h4>
     <p>
      In a language with lazy evaluation you cannot count on the order
-     in which things are evaluated and you cannot be sure that something 
-     won't be evaluated more than once.  If you are performing a pure
-     computation this doesn't affect the results.  If you need side effects,
-     such as input or output, it is a problem.
+     in which things are evaluated and you cannot be sure that
+     something will be evaluated only once.  If you are performing a
+     pure computation this doesn't affect the results.  If you need
+     side effects, such as input or output, it is a problem.
     </p>
     <p>
-     Sequencing can be done with a number of these type classes.  Monads
-     also make it easier to pipeline functions to create more complex
-     complications.
+     Sequencing can be done with a number of these type classes.
+     Monads also make it easier to pipeline functions, feeding the
+     output of one to the input of another, to create more complex
+     computations, possibly handling unforeseen events that occur in
+     midstream.  In addition there are methods to lift things into
+     their monadic equivalents.
     </p>
    </div>
 
@@ -105,20 +115,23 @@
      constructors" which essentially define parameterized types.  So
      List is a type constructor which is an instance of a number of
      type classes, including the ones we will be discussing.  So in a
-     sense <br><br>the type [String] which signifies "list of String" in
-     Haskell corresponds to the type List&lt;String&gt; in Java.<br><br> However,
-     List in Haskell is also an instance of functor, and there is no
-     very close analogy to that in Java.
+     sense <br><br>the type [String] which signifies "list of String"
+     in Haskell corresponds to the type List&lt;String&gt; in
+     Java.<br><br> However, List in Haskell is also an instance of
+     functor, and there is no very close analogy to that in Java.
+     (Also, for historical reasons, List is a type in its own right in
+     Java. In Haskell it is not.)
     </p>
    </div>
 
    <div class="slide">
     <h3>Summary</h3> 
-    These type classes are each defined by a set of functions and a set of rules.
+    These type classes are each defined by a set of functions and a set of 
+    rules.
     <br><br>
-    Note: One of the reasons I think of these as related to design patterns is that
-    there is nothing <span class="emphasize">in the language</span> that enforces 
-    these rules.  
+    Note: One of the reasons I think of these as related to design patterns 
+    is that there is nothing <span class="emphasize">in the language</span> 
+    that enforces these rules.  
     <table border="1" class="defs">
      <tr>
       <th>
@@ -185,7 +198,7 @@
        bind<br>
        join<hr>
        (Note: monads can be defined in terms of return and bind, or in terms
-       of return, join, and fmap.)
+       of return, join or flatten, and fmap.)
       </td>
       <td style="vertical-align: top">
        left identity: return a >>= f is the same as f a<br>
@@ -373,7 +386,7 @@
      return <br>
      bind &gt;&gt;=<br>
      join <br>
-     fail &gt;&gt;= (viewed by some as an ugly hack)<br>  
+     fail &nbsp;&nbsp; (viewed by some as necessary, by others as an ugly hack)<br>  
      sequence &gt;&gt;<br>
       <br>
     </div>
@@ -429,23 +442,42 @@
      Any code that has to produce side-effects (e.g. input and output)
      typically depends pretty heavily on order of execution.  The sequence
      operator is the same as the bind operator, &gt;&gt;=, except the function
-     on the right hand side ignores its parameter.  So if you want "a" to 
+     on the right hand side ignores its parameter.  <br><br>So if you want "a" to 
      happen and then "b" you write:<br>
      a &gt;&gt; b
     </div> 
+   </div>
+
+   <div class="slide">
+    <h3>Monad syntactic sugar</h3>
     <div>
      To make this easier to use many languages introduce syntactic sugar. In 
      Haskell this is "do" notation and in Scala it is "for" expressions.  
      <br>
-     For example:
+     For example, the highlighted part of this code in scala:
      <pre>
       <code>
-       do
-         print "testing"
-         print "one"
-         print "two"
+       <div class="highlight">
+       def z(x: Int) : Option[Int] =
+	 for {
+	   a <- f(x)
+	   b <- g(a)
+	 } yield b + 1
+       </div>
+
+       def f(x: Int) : Option[Int] = {
+         if (x <= 3) Some(x + 1)
+         else None
+       }
+
+       def g(x: Int) : Option[Int] = {
+         Some(x * 2)
+       }
       </code>
      </pre>
+     is converted by the compiler into this:<br>
+     def z(x: Int): Option[Int] = f(x).flatMap(((a) => g(a).map(((b) => b.$plus(1)))));
+
     </div>
    </div>
 
@@ -479,8 +511,8 @@
       import Control.Monad
 
       main = do
-	print (x ["20"])
-	print (y ["20"])
+        print (x ["20"])
+        print (y ["20"])
 
       f :: Integer -> String
       f x = show(x + 1)
@@ -517,8 +549,8 @@
       import Control.Monad
 
       main = do
-	print (x ["20"])
-	print (y ["20"])
+        print (x ["20"])
+        print (y ["20"])
 
       f :: Integer -> String
       f x = show(x + 1)
@@ -537,11 +569,11 @@
       [1 of 1] Compiling Main ( altcomp.hs, altcomp.o )
 
       altcomp.hs:21:9:
-	  Couldn't match expected type `Integer' with actual type `[Integer]'
-	  Expected type: [String] -> Integer
-	    Actual type: [String] -> [Integer]
-	  In the second argument of `(.)', namely `g'
-	  In the expression: f . g
+          Couldn't match expected type `Integer' with actual type `[Integer]'
+          Expected type: [String] -> Integer
+            Actual type: [String] -> [Integer]
+          In the second argument of `(.)', namely `g'
+          In the expression: f . g
       $ 
      </code>
     </pre>
@@ -617,6 +649,11 @@
      </ol>
     </div> 
    </div> 
+   <div class="slide">
+    <h3>Equivalence of monad definitions</h3>
+    <a href="equiv.html">Equivalence of monad definitions</a>
+   </div>
+
   </div>
  </body>
 </html>
