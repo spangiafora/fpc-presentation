@@ -101,10 +101,9 @@
      constructors" which essentially define parameterized types.  So
      List is a type constructor which is an instance of a number of
      type classes, including the ones we will be discussing.  So in a
-     sense <br><br>the type [String] which signifies "list of String"
+     sense: <br><br>the type [String] which signifies "list of String"
      in Haskell corresponds to the type List&lt;String&gt; in
-     Java.<br><br> However, List in Haskell is also an instance of
-     functor, and there is no very close analogy to that in Java.
+     Java.<br><br> 
      (Also, for historical reasons, List is a type in its own right in
      Java. In Haskell it is not.)
     </p>
@@ -199,11 +198,12 @@
    <div class="slide">
     <h3>Functor</h3>
     A class of types that support the "map" operation (called fmap in this example):
-     <ol>
-      <li>str2float n = read n :: Float
-      <li>str2float "1" returns 1.0
-      <li><span class="highlight">fmap str2float ["1", "2", "3"] returns [1.0, 2.0, 3.0]</span>
-     </ol>
+    <ol>
+     <li>str2float n = read n :: Float
+     <li>str2float "1" returns 1.0
+     <li><span class="highlight">fmap str2float ["1", "2", "3"] returns [1.0, 2.0, 3.0]</span>
+    </ol>
+    This example shows List as a functor.
    </div>
 
    <div class="slide">
@@ -225,6 +225,20 @@
      [7,8,9]<br>
      <span class="highlight">&gt; mconcat [x, y, z]<br>
      [1,2,3,4,5,6,7,8,9]<br></span>
+    </div>
+   </div>
+
+   <div class="slide">
+    <h2>"Maybe" is a monad</h2>
+    <div class="inner">
+     The next example makes use of a type that can represent either a single
+     value or no value.<br><br>
+     "Maybe" in Haskell, which is called "Option" in Scala, and which
+     is somewhat analogous to the role played by "null" in Java, is a type
+     constructor whose possible values are:<br>
+     For <span class="highlight">Maybe t</span>: <br>
+     <span class="highlight">Just t</span> if it has a value and: <br>
+     <span class="highlight">Nothing</span> if it does not.<br><br>
     </div>
    </div>
 
@@ -270,6 +284,9 @@
       &gt; add3 1<br>
       Just 4<br>
      </div>
+     The &gt;&gt;= operation is called "bind."  It binds the value of the monad (left side)
+     to the parameter of the function (right side). "return" takes a value and puts
+     it into a monad.
     </div>
    </div>
 
@@ -440,10 +457,10 @@
       <code>
        <span class="highlight">
        def z(x: Int) : Option[Int] =
-	 for {
-	   a &lt;- f(x)
-	   b &lt;- g(a)
-	 } yield b + 1
+         for {
+           a &lt;- f(x)
+           b &lt;- g(a)
+         } yield b + 1
        </span>
        def f(x: Int) : Option[Int] = if (x &lt;= 3) Some(x + 1) else None
        def g(x: Int) : Option[Int] = Some(x * 2)
@@ -456,6 +473,36 @@
    </div>
 
    <div class="slide">
+    <h3>Example of "for" expression from previous slide</h3>
+    <pre>
+     <code>
+       package ForExample {
+         object ForExample {
+
+           def z(x: Int) : Option[Int] =
+             for {
+               a &lt;- f(x)
+               b &lt;- g(a)
+             } yield b + 1
+
+           def f(x: Int) : Option[Int] = if (x &lt;= 3) Some(x + 1) else None
+           def g(x: Int) : Option[Int] = Some(x * 2)
+
+           def main(args: Array[String]): scala.Unit = {
+             println(z(3))
+             println(z(5))
+           }
+         }
+       }
+       [info] Running ForExample.ForExample 
+       Some(9)
+       None
+       [success] Total time: 9 s, completed May 7, 2013 6:21:31 PM
+     </code>
+    </pre>
+   </div> 
+
+   <div class="slide">
     <h3>Monads continued</h3>
     <div class="inner">
      Monads have other useful attributes that I won't go into in depth here.
@@ -466,91 +513,6 @@
       [1,2,3,4,5,6]
      </div>
     </div> 
-   </div> 
-
-   <div class="slide">
-    <h3>Things to discuss?</h3>
-    <h4>Does Rob really get monadic function composition</h4>
-    I very nearly included some bad misinformation in this presentation.
-    When, with Chas's help, I caught it, it took me about 20 minutes to
-    straighten things out.  Given that, I am not now 100% sure I really
-    understand the mechanism or motivation.  Here's what I found:
-    <br><br>
-    This is ok:
-    <pre>
-     <code>
-      module Main (main)
-      where 
-
-      import Control.Monad
-
-      main = do
-        print (x ["20"])
-        print (y ["20"])
-
-      f :: Integer -> String
-      f x = show(x + 1)
-
-      // You can modify f to take a list of Integer 
-      // and use that for regular function composition
-      f' :: [Integer] -> String
-      f' [x] = show(x + 1)
-
-      g :: [String] -> [Integer]
-      g [x] = [(read x) * 2]
-
-      // Or you can use bind to extract the value from 
-      // the list and join g and f that way
-      // <span style="color: purple;">This is the part I am not sure I get.
-      // Does it matter that f does not return a monad?</span>
-       <span style="font-size: larger; color: blue;">x = g >=> f
-      y = f' . g</span>
-      $ ghc altcomp
-      [1 of 1] Compiling Main             ( altcomp.hs, altcomp.o )
-      Linking altcomp ...
-      $ ./altcomp 
-      "41"
-      "41"
-      $
-     </code>
-    </pre>
-    This is not:
-    <pre>
-     <code>
-      module Main (main)
-      where 
-
-      import Control.Monad
-
-      main = do
-        print (x ["20"])
-        print (y ["20"])
-
-      f :: Integer -> String
-      f x = show(x + 1)
-
-      f' :: [Integer] -> String
-      f' [x] = show(x + 1)
-
-      g :: [String] -> [Integer]
-      g [x] = [(read x) * 2]
-
-       <span style="font-size: larger; color: blue;">x = g >=> f
-      y = f . g</span>
-
-      $ !g
-      ghc altcomp
-      [1 of 1] Compiling Main ( altcomp.hs, altcomp.o )
-
-      altcomp.hs:21:9:
-          Couldn't match expected type `Integer' with actual type `[Integer]'
-          Expected type: [String] -> Integer
-            Actual type: [String] -> [Integer]
-          In the second argument of `(.)', namely `g'
-          In the expression: f . g
-      $ 
-     </code>
-    </pre>
    </div> 
 
    <div class="slide">
