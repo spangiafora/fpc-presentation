@@ -33,11 +33,6 @@
      with a little Clojure thrown in.  One of the things I have found most
      confusing is a set of common <span class="emphasize">type classes.</span>
     </p>
-    <p class="aside">
-     I am very new to this stuff. Please bear with me if I make any errors.
-     When reviewing these slides I discovered mistakes that I know I would 
-     not have made if I were actively programming in these languages.
-    </p>
    </div>
 
    <div class="slide">
@@ -49,16 +44,13 @@
     </p>
     <p>
      I have seen some attempts to compare them to interfaces in
-     Java. However, I believe these type definitions operate at a
-     higher level of abstraction than Java interfaces.  The collection
-     of types and actions resembles an algebra.
+     Java. I think they operate at a higher level of abstraction than
+     Java interfaces.
     </p>
     <p>
      I think a better analogy in the software development world is to
      design patterns, in the original sense of a vocabulary for
-     describing an approach to solving a class of problem rather than
-     necessarily a best practice or a specific implementation of a
-     solution. 
+     describing strategies - not necessarily best practices.
     </p>
    </div>
 
@@ -66,23 +58,17 @@
     <h3>Motivation</h3>
     <p>
      Before getting into technical details we should take a higher
-     level look at some of the problems these type classes address.
+     level look at a couple of the problems these type classes address.
     </p>
     <h4>Sequencing</h4>
+     In the presence of lazy evaluation, expressions
+     <ol>
+      <li>may be evaluated out of order
+      <li>may be evaluated more than once
+     </ol>
     <p>
-     In a language with lazy evaluation you cannot count on the order
-     in which things are evaluated and you cannot be sure that
-     something will be evaluated only once.  If you are performing a
-     pure computation this doesn't affect the results.  If you need
-     side effects, such as input or output, it is a problem.
-    </p>
-    <p>
-     Sequencing can be done with a number of these type classes.
-     Monads also make it easier to pipeline functions, feeding the
-     output of one to the input of another, to create more complex
-     computations, possibly handling unforeseen events that occur in
-     midstream.  In addition there are methods to lift things into
-     their monadic equivalents.
+     Sequencing and pipelining of functions can be done with a number
+     of these type classes.
     </p>
    </div>
 
@@ -103,9 +89,8 @@
      </pre>
      If you try to combine two functions and the leftmost function
      (the one calling the result of the other) doesn't accept the type
-     of the rightmost function's return value they cannot be combined.
-     Clojure will allow the composition, but you will get a runtime
-     error.  Haskell will disallow the composition.
+     of the rightmost function's return value as the type of its argument,
+     they cannot be usefully combined.
    </div>
 
    <div class="slide">
@@ -185,7 +170,7 @@
        that chains calls to "append.")
       </td>
       <td style="vertical-align: top">
-       identity: (append empty x = x)<br>and (append x empty = x) <br>
+       identity: (append empty x = x)<br>and (append x empty = x) <br><br>
        associativity: appending y to x and then appending z to that
        is the same as appending z to y and then appending that to x.
       </td>
@@ -199,7 +184,8 @@
        bind<br>
        join<hr>
        (Note: monads can be defined in terms of return and bind, or in terms
-       of return, join or flatten, and fmap.)
+       of return, join or flatten, and fmap.  Haskell uses the former, Scala the
+       latter.)
       </td>
       <td style="vertical-align: top">
        left identity: return a >>= f is the same as f a<br>
@@ -212,6 +198,7 @@
 
    <div class="slide">
     <h3>Functor</h3>
+    A class of types that support the "map" operation (called fmap in this example):
      <ol>
       <li>str2float n = read n :: Float
       <li>str2float "1" returns 1.0
@@ -245,13 +232,13 @@
     <h3>Side trip - function composition</h3>
     <div class="inner">
      <span class="emphasize">Regular function composition assumes parameter and return
-     types are the same:</span><br>
+     types are compatible:</span><br>
      &gt; let add1 n = n + 1<br>
      &gt; let add2 n = n + 2<br>
      &gt; let add3 = add2 . add1<br>
      &gt; add3 2<br>
      5<br><br>
-     <span class="emphasize">If they are not the same, trouble ensues:</span><br>
+     <span class="emphasize">If not, trouble ensues:</span><br>
      &gt; let add1 n = Just (n + 1)<br>
      &gt; let add2 n = Just (n + 2)<br>
      &gt; add1 2<br>
@@ -436,16 +423,9 @@
    <div class="slide">
     <h3>Monads continued</h3>
     <div class="inner">
-     One of the most useful features of monads is that they allow you,
-     by purely functional means, to cause evaluation to proceed in
-     a specified order.  Normally in a non-strict language the program
-     does not specify the order in which expressions are evaluated. 
-     Any code that has to produce side-effects (e.g. input and output)
-     typically depends pretty heavily on order of execution.  The sequence
-     operator is the same as the bind operator, &gt;&gt;=, except the function
-     on the right hand side ignores its parameter.  <br><br>So if you want "a" to 
-     happen and then "b" you write:<br>
-     a &gt;&gt; b
+     The &gt;&gt; operation (read "then") makes it easy to sequence steps of
+     a computation.  It is the equivalent of "bind" except that the
+     right hand side of the operation ignores its input.
     </div> 
    </div>
 
@@ -458,27 +438,20 @@
      For example, the highlighted part of this code in scala:
      <pre>
       <code>
-       <div class="highlight">
+       <span class="highlight">
        def z(x: Int) : Option[Int] =
 	 for {
-	   a <- f(x)
-	   b <- g(a)
+	   a &lt;- f(x)
+	   b &lt;- g(a)
 	 } yield b + 1
-       </div>
-
-       def f(x: Int) : Option[Int] = {
-         if (x <= 3) Some(x + 1)
-         else None
-       }
-
-       def g(x: Int) : Option[Int] = {
-         Some(x * 2)
-       }
+       </span>
+       def f(x: Int) : Option[Int] = if (x &lt;= 3) Some(x + 1) else None
+       def g(x: Int) : Option[Int] = Some(x * 2)
+       is converted by the compiler into this:<br>
+       <span class="highlight">
+       def z(x: Int): Option[Int] = f(x).flatMap(((a) =&gt; g(a).map(((b) =&gt; b.$plus(1)))));</span>
       </code>
      </pre>
-     is converted by the compiler into this:<br>
-     def z(x: Int): Option[Int] = f(x).flatMap(((a) => g(a).map(((b) => b.$plus(1)))));
-
     </div>
    </div>
 
