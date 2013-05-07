@@ -34,3 +34,6 @@ h2           { color: blue; }
 .highlight   { background-color: yellow; }
 
 .box         { border: 2px solid black; }
+.inner       {  }
+.aside       { font-size: smaller; font-style: italic; }
+
