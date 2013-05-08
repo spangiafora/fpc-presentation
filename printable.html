@@ -10,11 +10,6 @@
    table.defs { width: 100%; }
    th.funccol { width: 40%; }
   </style>
-  <link rel="stylesheet" type="text/css" href="slides.css"/>
-  <script type="text/javascript" 
-          src="http://code.jquery.com/jquery-1.9.1.min.js">
-  </script>
-  <script type="text/javascript" src="slide.js"></script>
  </head>
  <body>
   <div id="magazine" class="magazine">  
@@ -33,11 +28,6 @@
      with a little Clojure thrown in.  One of the things I have found most
      confusing is a set of common <span class="emphasize">type classes.</span>
     </p>
-    <p class="aside">
-     I am very new to this stuff. Please bear with me if I make any errors.
-     When reviewing these slides I discovered mistakes that I know I would 
-     not have made if I were actively programming in these languages.
-    </p>
    </div>
 
    <div class="slide">
@@ -49,15 +39,13 @@
     </p>
     <p>
      I have seen some attempts to compare them to interfaces in
-     Java. However, I believe these type definitions operate at a
-     higher level of abstraction than Java interfaces.
+     Java. I think they operate at a higher level of abstraction than
+     Java interfaces.
     </p>
     <p>
-     I think a better analogy is to design patterns, in the original
-     sense of a vocabulary for describing an approach to solving a
-     class of problem rather than necessarily a best practice or a
-     specific implementation of a solution.  (Since I wrote this slide
-     I have seen them called patterns in a number of places.)
+     I think a better analogy in the software development world is to
+     design patterns, in the original sense of a vocabulary for
+     describing strategies - not necessarily best practices.
     </p>
    </div>
 
@@ -65,23 +53,17 @@
     <h3>Motivation</h3>
     <p>
      Before getting into technical details we should take a higher
-     level look at some of the problems these type classes address.
+     level look at a couple of the problems these type classes address.
     </p>
     <h4>Sequencing</h4>
+     In the presence of lazy evaluation, expressions
+     <ol>
+      <li>may be evaluated out of order
+      <li>may be evaluated more than once
+     </ol>
     <p>
-     In a language with lazy evaluation you cannot count on the order
-     in which things are evaluated and you cannot be sure that
-     something will be evaluated only once.  If you are performing a
-     pure computation this doesn't affect the results.  If you need
-     side effects, such as input or output, it is a problem.
-    </p>
-    <p>
-     Sequencing can be done with a number of these type classes.
-     Monads also make it easier to pipeline functions, feeding the
-     output of one to the input of another, to create more complex
-     computations, possibly handling unforeseen events that occur in
-     midstream.  In addition there are methods to lift things into
-     their monadic equivalents.
+     Sequencing and pipelining of functions can be done with a number
+     of these type classes.
     </p>
    </div>
 
@@ -102,23 +84,22 @@
      </pre>
      If you try to combine two functions and the leftmost function
      (the one calling the result of the other) doesn't accept the type
-     of the rightmost function's return value they cannot be combined.
-     Clojure will allow the composition, but you will get a runtime
-     error.  Haskell will disallow the composition.
+     of the rightmost function's return value as the type of its argument,
+     they cannot be usefully combined.
    </div>
 
    <div class="slide">
     <h3>Type Classes</h3>
     <p>
      Haskell is a simple uncluttered language to describe these things
-     in.  It supports the notion of "type classes" and "type
-     constructors" which essentially define parameterized types.  So
-     List is a type constructor which is an instance of a number of
-     type classes, including the ones we will be discussing.  So in a
-     sense <br><br>the type [String] which signifies "list of String"
-     in Haskell corresponds to the type List&lt;String&gt; in
-     Java.<br><br> However, List in Haskell is also an instance of
-     functor, and there is no very close analogy to that in Java.
+     in.  It supports the notion of "type classes," which describe
+     behavior (such as ordering or testing for equality) that is
+     shared by a number of types, and "type constructors" which
+     essentially define parameterized types.  So List is a type
+     constructor which is an instance of a number of type classes,
+     including the ones we will be discussing.  So in a sense:
+     <br><br>the type [String] which signifies "list of String" in
+     Haskell corresponds to the type List&lt;String&gt; in Java.<br><br> 
      (Also, for historical reasons, List is a type in its own right in
      Java. In Haskell it is not.)
     </p>
@@ -184,7 +165,7 @@
        that chains calls to "append.")
       </td>
       <td style="vertical-align: top">
-       identity: (append empty x = x)<br>and (append x empty = x) <br>
+       identity: (append empty x = x)<br>and (append x empty = x) <br><br>
        associativity: appending y to x and then appending z to that
        is the same as appending z to y and then appending that to x.
       </td>
@@ -198,7 +179,8 @@
        bind<br>
        join<hr>
        (Note: monads can be defined in terms of return and bind, or in terms
-       of return, join or flatten, and fmap.)
+       of return, join or flatten, and fmap.  Haskell uses the former, Scala the
+       latter.)
       </td>
       <td style="vertical-align: top">
        left identity: return a >>= f is the same as f a<br>
@@ -211,11 +193,13 @@
 
    <div class="slide">
     <h3>Functor</h3>
-     <ol>
-      <li>str2float n = read n :: Float
-      <li>str2float "1" returns 1.0
-      <li><span class="highlight">fmap str2float ["1", "2", "3"] returns [1.0, 2.0, 3.0]</span>
-     </ol>
+    A class of types that support the "map" operation (called fmap in this example):
+    <ol>
+     <li>str2float n = read n :: Float
+     <li>str2float "1" returns 1.0
+     <li><span class="highlight">fmap str2float ["1", "2", "3"] returns [1.0, 2.0, 3.0]</span>
+    </ol>
+    This example shows List as a functor.
    </div>
 
    <div class="slide">
@@ -241,16 +225,30 @@
    </div>
 
    <div class="slide">
+    <h2>"Maybe" is a monad</h2>
+    <div class="inner">
+     The next example makes use of a type that can represent either a single
+     value or no value.<br><br>
+     "Maybe" in Haskell, which is called "Option" in Scala, and which
+     is somewhat analogous to the role played by "null" in Java, is a type
+     constructor whose possible values are:<br>
+     For <span class="highlight">Maybe t</span>: <br>
+     <span class="highlight">Just t</span> if it has a value and: <br>
+     <span class="highlight">Nothing</span> if it does not.<br><br>
+    </div>
+   </div>
+
+   <div class="slide">
     <h3>Side trip - function composition</h3>
     <div class="inner">
      <span class="emphasize">Regular function composition assumes parameter and return
-     types are the same:</span><br>
+     types are compatible:</span><br>
      &gt; let add1 n = n + 1<br>
      &gt; let add2 n = n + 2<br>
      &gt; let add3 = add2 . add1<br>
      &gt; add3 2<br>
      5<br><br>
-     <span class="emphasize">If they are not the same, trouble ensues:</span><br>
+     <span class="emphasize">If not, trouble ensues:</span><br>
      &gt; let add1 n = Just (n + 1)<br>
      &gt; let add2 n = Just (n + 2)<br>
      &gt; add1 2<br>
@@ -282,6 +280,9 @@
       &gt; add3 1<br>
       Just 4<br>
      </div>
+     The &gt;&gt;= operation is called "bind."  It binds the value of the monad (left side)
+     to the parameter of the function (right side). "return" takes a value and puts
+     it into a monad.
     </div>
    </div>
 
@@ -435,16 +436,9 @@
    <div class="slide">
     <h3>Monads continued</h3>
     <div class="inner">
-     One of the most useful features of monads is that they allow you,
-     by purely functional means, to cause evaluation to proceed in
-     a specified order.  Normally in a non-strict language the program
-     does not specify the order in which expressions are evaluated. 
-     Any code that has to produce side-effects (e.g. input and output)
-     typically depends pretty heavily on order of execution.  The sequence
-     operator is the same as the bind operator, &gt;&gt;=, except the function
-     on the right hand side ignores its parameter.  <br><br>So if you want "a" to 
-     happen and then "b" you write:<br>
-     a &gt;&gt; b
+     The &gt;&gt; operation (read "then") makes it easy to sequence steps of
+     a computation.  It is the equivalent of "bind" except that the
+     right hand side of the operation ignores its input.
     </div> 
    </div>
 
@@ -457,29 +451,52 @@
      For example, the highlighted part of this code in scala:
      <pre>
       <code>
-       <div class="highlight">
+       <span class="highlight">
        def z(x: Int) : Option[Int] =
-	 for {
-	   a <- f(x)
-	   b <- g(a)
-	 } yield b + 1
-       </div>
-
-       def f(x: Int) : Option[Int] = {
-         if (x <= 3) Some(x + 1)
-         else None
-       }
-
-       def g(x: Int) : Option[Int] = {
-         Some(x * 2)
-       }
+         for {
+           a &lt;- f(x)
+           b &lt;- g(a)
+         } yield b + 1
+       </span>
+       def f(x: Int) : Option[Int] = if (x &lt;= 3) Some(x + 1) else None
+       def g(x: Int) : Option[Int] = Some(x * 2)
+       is converted by the compiler into this:<br>
+       <span class="highlight">
+       def z(x: Int): Option[Int] = f(x).flatMap(((a) =&gt; g(a).map(((b) =&gt; b.$plus(1)))));</span>
       </code>
      </pre>
-     is converted by the compiler into this:<br>
-     def z(x: Int): Option[Int] = f(x).flatMap(((a) => g(a).map(((b) => b.$plus(1)))));
-
     </div>
    </div>
+
+   <div class="slide">
+    <h3>Example of "for" expression from previous slide</h3>
+    <pre>
+     <code>
+       package ForExample {
+         object ForExample {
+
+           def z(x: Int) : Option[Int] =
+             for {
+               a &lt;- f(x)
+               b &lt;- g(a)
+             } yield b + 1
+
+           def f(x: Int) : Option[Int] = if (x &lt;= 3) Some(x + 1) else None
+           def g(x: Int) : Option[Int] = Some(x * 2)
+
+           def main(args: Array[String]): scala.Unit = {
+             println(z(3))
+             println(z(5))
+           }
+         }
+       }
+       [info] Running ForExample.ForExample 
+       Some(9)
+       None
+       [success] Total time: 9 s, completed May 7, 2013 6:21:31 PM
+     </code>
+    </pre>
+   </div> 
 
    <div class="slide">
     <h3>Monads continued</h3>
@@ -492,91 +509,6 @@
       [1,2,3,4,5,6]
      </div>
     </div> 
-   </div> 
-
-   <div class="slide">
-    <h3>Things to discuss?</h3>
-    <h4>Does Rob really get monadic function composition</h4>
-    I very nearly included some bad misinformation in this presentation.
-    When, with Chas's help, I caught it, it took me about 20 minutes to
-    straighten things out.  Given that, I am not now 100% sure I really
-    understand the mechanism or motivation.  Here's what I found:
-    <br><br>
-    This is ok:
-    <pre>
-     <code>
-      module Main (main)
-      where 
-
-      import Control.Monad
-
-      main = do
-        print (x ["20"])
-        print (y ["20"])
-
-      f :: Integer -> String
-      f x = show(x + 1)
-
-      // You can modify f to take a list of Integer 
-      // and use that for regular function composition
-      f' :: [Integer] -> String
-      f' [x] = show(x + 1)
-
-      g :: [String] -> [Integer]
-      g [x] = [(read x) * 2]
-
-      // Or you can use bind to extract the value from 
-      // the list and join g and f that way
-      // <span style="color: purple;">This is the part I am not sure I get.
-      // Does it matter that f does not return a monad?</span>
-       <span style="font-size: larger; color: blue;">x = g >=> f
-      y = f' . g</span>
-      $ ghc altcomp
-      [1 of 1] Compiling Main             ( altcomp.hs, altcomp.o )
-      Linking altcomp ...
-      $ ./altcomp 
-      "41"
-      "41"
-      $
-     </code>
-    </pre>
-    This is not:
-    <pre>
-     <code>
-      module Main (main)
-      where 
-
-      import Control.Monad
-
-      main = do
-        print (x ["20"])
-        print (y ["20"])
-
-      f :: Integer -> String
-      f x = show(x + 1)
-
-      f' :: [Integer] -> String
-      f' [x] = show(x + 1)
-
-      g :: [String] -> [Integer]
-      g [x] = [(read x) * 2]
-
-       <span style="font-size: larger; color: blue;">x = g >=> f
-      y = f . g</span>
-
-      $ !g
-      ghc altcomp
-      [1 of 1] Compiling Main ( altcomp.hs, altcomp.o )
-
-      altcomp.hs:21:9:
-          Couldn't match expected type `Integer' with actual type `[Integer]'
-          Expected type: [String] -> Integer
-            Actual type: [String] -> [Integer]
-          In the second argument of `(.)', namely `g'
-          In the expression: f . g
-      $ 
-     </code>
-    </pre>
    </div> 
 
    <div class="slide">
