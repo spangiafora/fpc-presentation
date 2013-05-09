@@ -1,0 +1,116 @@
+<html>
+ <head>
+  <title>
+   things to add to slide show
+  </title>
+ </head>
+ <body>
+  </ul>
+   <li>
+     Bear with me.  I am new to this stuff.  I now understand the
+     basics of monads but:
+     <ul>
+      <li>I am still not clear on the theoretical underpinnings
+      <li>I know places where they can be used, but I am not sure where
+          they are most appropriate.
+      <li>They are more algebraic than most things you encounter in java
+      <li>I am hoping this will be more of a discussion than a lecture.
+     </ul>
+   </li>
+   <li>
+     Monad was added to Haskell as a type class before Functor, so some
+     of the classes don't have the relationship you might reasonably expect.
+   </li>
+   <li>
+     map existed before fmap.  If you apply fmap improperly to a list,
+     the first structure beginners typically deal with, you get a
+     confusing diagnostic message.
+   </li>
+   <li>
+     Type constructor and data constructor.  List (really []) is a
+     difficult one to describe because it is overloaded.
+   </li>
+   <li>
+     Function composition:  Explain Just/Maybe/Nothing.
+   </li>
+   <li>
+     Explain bind, >>=.  Binds the value of the monad to the 
+     parameter of the function.
+   </li>
+   <li>
+    Monad syntactic sugar. - The important thing here is that it is still
+    just function combination and application. 
+   </li>
+   <li>
+    Scala and Haskell differ in their view of types.  In Haskell you
+    map a function over a container you expect to get the same
+    container back.  In Scala you may or may not.  Scala is more permissive.
+    Clojure is probably similar.
+   </li>
+  </ul> 
+ <ul>
+   <li>
+    Reasons for confusion:
+    <ul>
+     <li>
+      Last week I was an expert.  This week I don't know a thing.  So this
+      will be more a discussion than a presentation.
+     </li>
+     <li>
+      People understand things by example and analogy, so they try
+      to translate the concepts to familiar terms such as javascript.
+     </li>
+     <li>
+      Javascript is weakly typed and strict.  The use of monads in programming
+      was introduced initially in Haskell, which is very strongly typed and lazy.
+      Some of the reasons for using monads are not compelling in Javascript, and
+      not even needed in a strict functional language such as Erlang.
+     </li>
+     <li>
+      Once people understand the concepts in the familiar environment they can 
+      see uses for them.  However, they may still be unfamiliar with the reasons
+      they were devised to begin with.  (I am thinking of Crockford, here.)
+     </li>
+     <li>
+      The concepts don't directly correspond simply to language
+      features.  They are more like an algebra or a design pattern.
+      Wadler refers to them as a "strategy." Monads are not so much a
+      thing as formal characteristics of a number of things.
+     </li>
+    </ul>
+   </li>
+   <li>
+    Make sure that early on in the slides there is a definition of monad as:
+    <ul>
+     <li>unit
+     <li>bind
+     <li>type constructor
+    </ul>
+   </li>
+   <li>
+    Differentiate between type constructors and data constructors.
+   </li>
+   <li>
+    Give an example of writing a function that naturally takes an int argument
+    and naturally returns a Maybe Int.  Then show another, and demonstrate
+    how it is desirable to be able to compose them.  
+   </li>
+   <li>
+    modularity / flexibility / isolation - see All About Monads
+   </li>
+   <li>
+    Read LYAH before reading Wadler or any articles that use Haskell's type notation.
+   </li>
+   <li>
+    List comprehension is a monadic operation, except that it is specifically 
+    associated with lists.  Explain why map and fmap exist in Haskell.
+   </li>
+   <li>
+    Membership in Monad type class in Haskell makes a type usable in
+    "do" notation.  Implementation of flatMap, map and filter makes a
+    type usable in "for: notation in Scala.  Tie this to expansion of for loop 
+    by the compiler.
+   </li>
+  </ul>
+ </body>
+</html>
