@@ -47,9 +47,8 @@ main = do
 f i = Just (i + 10)
 
  -- return 2 &gt;&gt;= f          -- convert 2 to Just 2 
- -- (Just 2) &gt;&gt;= f          -- and pipe it to f
- -- f(2)                    -- &gt;&gt;= takes 2 from Just 2
-                               and binds it to "i" in "f i"
+ -- (Just 2) &gt;&gt;= f          -- &gt;&gt;= takes 2 from Just 2
+ -- f(2)                    -- and binds it to "i" in "f i"
  -- Just 12                 -- f returns Just 12
  -- -------------
  -- join((fmap f) (Just 2)) -- fmap f over Just 2 returning Just(Just 12)
@@ -78,10 +77,9 @@ main = do
 
 f i = [i + 1, i + 2]
 
- -- return 2 &gt;&gt;= f       -- convert 2 to [2 ]
- -- [2] &gt;&gt;= f            --
- -- f(2)                 -- &gt;&gt;= takes 2 from [2]
-                            and binds it to "i" in "f i"
+ -- return 2 &gt;&gt;= f       -- convert 2 to [2]
+ -- [2] &gt;&gt;= f            -- &gt;&gt;= takes 2 from [2]
+ -- f(2)                 -- and binds it to "i" in "f i"
  -- [3, 4]               -- f returns [3, 4]
  -- -------------
  -- join((fmap f) [2])   -- fmap f over [2] returning [[3, 4]]
